@@ -1,0 +1,109 @@
+
+    /* Overall moderation section */
+    .moderation-section {
+        max-width: 800px;
+        margin-top: 100px;
+        margin-left: 500px;
+        padding: 20px;
+    
+        border-radius: 8px;
+    }
+    
+    .moderation-section h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    /* Search bar styling */
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .search-bar input {
+        width: 80%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+    }
+    
+    .search-bar input:focus {
+        border-color: #4CAF50;
+    }
+    
+    /* Styling for each user item */
+    .moderation-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .moderation-item .user-info {
+        flex: 1;
+    }
+    
+    .moderation-item .user-actions {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .moderation-item p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    
+    .moderation-item p strong {
+        font-weight: bold;
+    }
+    
+    /* Button styling */
+    .action-btn {
+        padding: 8px 16px;
+        margin: 5px 0;
+        font-size: 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .action-btn:hover {
+        opacity: 0.9;
+    }
+    
+    /* Ban button styling */
+    .ban-btn {
+        background-color: #f44336;
+        color: #fff;
+    }
+    
+    .ban-btn:hover {
+        background-color: #d32f2f;
+    }
+    
+    /* Unban button styling */
+    .unban-btn {
+        background-color: #4CAF50;
+        color: #fff;
+    }
+    
+    .unban-btn:hover {
+        background-color: #388e3c;
+    }
+    
+    /* User not found message */
+    .moderation-section p {
+        text-align: center;
+        font-size: 16px;
+        color: #666;
+    }

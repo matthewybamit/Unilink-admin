@@ -62,7 +62,7 @@
                 </div>
             </a>
             <a href="hashtags.php">
-                <div class="nav-option">
+                <div class="nav-option option1">
                     <img src="images/hashtag.png" class="nav-img" alt="Profile">
                     <h3>Hashtags</h3>
                 </div>
@@ -74,7 +74,7 @@
                 </div>
             </a>
             <a href="Profile.php">
-                <div class="nav-option option1">
+                <div class="nav-option">
                     <img src="images/user-icon1.png" class="nav-img" alt="Profile">
                     <h3>Profile</h3>
                 </div>

@@ -15,6 +15,7 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,6 +64,13 @@ if (!isset($_SESSION['username'])) {
                 <div class="nav-option option4">
                     <img src="images/moderator.png" class="nav-img" alt="Schedule">
                     <h3>Moderations</h3>
+                
+                </div>
+            </a>
+            <a href="hashtags.php">
+                <div class="nav-option">
+                    <img src="images/hashtag.png" class="nav-img" alt="Profile">
+                    <h3>Hashtags</h3>
                 </div>
             </a>
             <a href="Profile.php">
@@ -80,6 +88,7 @@ if (!isset($_SESSION['username'])) {
 </div>
 
 <!-- Add/Edit/Delete News Section -->
+
 <div class="news-grid">
     <?php foreach ($newsItems as $news): ?>
     <div class="news-card" onclick="openEditModal(<?= $news['news_id'] ?>)">
@@ -100,22 +109,82 @@ if (!isset($_SESSION['username'])) {
         <span>+</span>
     </div>
 </div>
-
 <!-- Add/Edit Modal -->
 <div id="newsModal" class="modal">
     <div class="modal-content">
         <h2 id="modalTitle">Add News</h2>
-        <form id="newsForm" action="submit_news.php" method="POST">
+        <form id="newsForm" action="submit_news.php" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="news_id" id="newsId">
+            <input type="hidden" name="existing_image_url" id="existingImageUrl"> <!-- Hidden field for the existing image URL -->
+            
             <input type="text" name="title" id="newsTitle" placeholder="News Title" required>
             <textarea name="content" id="newsContent" placeholder="News Content" rows="4" required></textarea>
-            <input type="text" name="author" id="newsAuthor" placeholder="Author" required>   
-            <!-- Added File Input for Image Upload -->
+            <input type="text" name="author" id="newsAuthor" placeholder="Author" required>
+            
+            <!-- File Input for Image Upload -->
             <input type="file" name="image_file" id="newsImageFile" accept="image/*">
+            
+            <!-- Image Preview (Optional) -->
+            <img id="existingImagePreview" src="" alt="Existing Image" style="max-width: 100px; margin-top: 10px; display: none;">
+            
             <button type="submit">Save</button>
         </form>
     </div>
 </div>
+
+
+<script>
+// Function to open modal with existing data for editing
+function openEditModal(news_id) {
+    // Fetch news details by ID
+    fetch(`get_news.php?news_id=${news_id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Populate the form with the news data
+                document.getElementById('newsId').value = data.news.news_id;
+                document.getElementById('newsTitle').value = data.news.title;
+                document.getElementById('newsContent').value = data.news.content;
+                document.getElementById('newsAuthor').value = data.news.author;
+                document.getElementById('existingImageUrl').value = data.news.image_url; // Store the image URL in the hidden field
+                document.getElementById('modalTitle').innerText = 'Edit News';
+
+                // Optionally display the current image (if any)
+                const imagePreview = document.getElementById('existingImagePreview');
+                if (data.news.image_url) {
+                    // Show existing image URL in the preview image tag
+                    imagePreview.src = data.news.image_url;
+                    imagePreview.style.display = 'block';  // Show the image preview
+                } else {
+                    imagePreview.style.display = 'none';  // Hide the image preview if no image exists
+                }
+
+                // Open the modal
+                document.getElementById('newsModal').style.display = 'block';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching news data:', error);
+        });
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('newsModal').style.display = 'none';
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('newsModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+
+</script>
 
 
 <script>

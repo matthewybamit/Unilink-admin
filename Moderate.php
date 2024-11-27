@@ -19,13 +19,11 @@ if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
 }
 
-// Fetch posts, comments, users, hashtags, reports, and logs from the database
-$posts = $conn->query("SELECT * FROM forum_posts");
-$comments = $conn->query("SELECT * FROM comments");
+
+
 $users = $conn->query("SELECT * FROM users");
-$hashtags = $conn->query("SELECT * FROM hashtags");
-$logs = $conn->query("SELECT * FROM moderation_logs");
-$reports = $conn->query("SELECT * FROM reports");
+
+
 
 ?>
 
@@ -38,294 +36,198 @@ $reports = $conn->query("SELECT * FROM reports");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="CSS/moderation.css">
     <link rel="stylesheet" href="CSS/nav.css">
 </head>
 
-<style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        button {
-            padding: 5px 10px;
-            margin: 5px;
-            border: none;
-            cursor: pointer;
-        }
-        .resolved {
-            background-color: green;
-            color: white;
-        }
-        .dismissed {
-            background-color: red;
-            color: white;
-        }
-        .pending {
-            background-color: yellow;
-            color: black;
-        }
-    </style>
+<Style> 
+
+
+</style>
+
 <body>
-<!-- MODERATION DASHBOARD -->
-<div class="moderation-dashboard">
-    <h1>Moderation Panel</h1>
-    <div class="moderation-categories">
-        <!-- Navigation Menu -->
-        <ul>
-            <li><button onclick="showSection('moderate-posts')">Posts</button></li>
-            <li><button onclick="showSection('moderate-comments')">Comments</button></li>
-            <li><button onclick="showSection('moderate-users')">Users</button></li>
-            <li><button onclick="showSection('moderate-hashtags')">Hashtags</button></li>
-            <li><button onclick="showSection('moderate-reports')">Reports</button></li>
-            <li><button onclick="showSection('moderation-logs')">Logs</button></li>
-        </ul>
+     
+    <!-- Header section -->
+   
+<header>
+    <div class="logosec">
+        <div class="logo">Unilink</div>
+        <img src="Images/hamburger.png" class="icn menuicn" id="menuicn" alt="menu-icon">
     </div>
+    <div class="message">
+        <div class="dp">
+            <img src="user-placeholder.png" class="dpicn" alt="User Profile" />
+        </div>
+    </div>
+</header>
 
-    <!-- Moderation Sections -->
-    <div class="moderation-sections">
-
-        <!-- Moderate Posts -->
-        <div id="moderate-posts" class="moderation-section" style="display: none;">
-            <h2>Posts Moderation</h2>
-            <div class="search-bar">
-                <input type="text" id="post-search" placeholder="Search posts..." onkeyup="filterModeration('post')">
+<div class="main-container">
+    <div class="navcontainer">
+        <nav class="nav">
+            <div class="user-account">
+                <a href="Profile.php"><img src="images/user-icon1.png" alt=""></a>
+                <h2>User Profile</h2>
             </div>
-            <?php
-            if ($posts->num_rows > 0): 
-                while ($post = $posts->fetch_assoc()): ?>
-                    <div class="moderation-item" id="post-item-<?= $post['id'] ?>">
-                        <p><strong>User:</strong> <?= htmlspecialchars($post['username']) ?></p>
-                        <p><strong>Content:</strong> <?= htmlspecialchars($post['content']) ?></p>
-                        <p><strong>Created At:</strong> <?= $post['created_at'] ?></p>
-                        <button onclick="deletePost(<?= $post['id'] ?>)">Delete</button>
-                        <button onclick="flagPost(<?= $post['id'] ?>)">Flag</button>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No posts found.</p>
-            <?php endif; ?>
-        </div>
-
-   <!-- Moderate Reports -->
-   <div id="moderate-reports" class="moderation-section" style="display: block;">
-            <h2>Reported Items</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reported By</th>
-                        <th>Item Type</th>
-                        <th>Item ID</th>
-                        <th>Reason</th>
-                        <th>Status</th>
-                        <th>Action Taken</th>
-                        <th>Report Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($reports->num_rows > 0): ?>
-                        <?php while ($report = $reports->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($report['reporter_username']) ?></td>
-                                <td><?= htmlspecialchars($report['item_type']) ?></td>
-                                <td><?= htmlspecialchars($report['item_id']) ?></td>
-                                <td><?= htmlspecialchars($report['reason']) ?></td>
-                                <td class="<?= strtolower($report['status']) ?>">
-                                    <?= htmlspecialchars($report['status']) ?>
-                                </td>
-                                <td><?= htmlspecialchars($report['action_taken']) ?></td>
-                                <td><?= $report['created_at'] ?></td>
-                                <td>
-                                    <?php if ($report['status'] == 'Pending'): ?>
-                                        <button onclick="resolveReport(<?= $report['id'] ?>)">Resolve</button>
-                                        <button onclick="dismissReport(<?= $report['id'] ?>)">Dismiss</button>
-                                    <?php endif; ?>
-                                    <button onclick="viewReportDetails(<?= $report['id'] ?>)">View Details</button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="8">No reports found.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-
-        <!-- Moderate Comments -->
-        <div id="moderate-comments" class="moderation-section" style="display: none;">
-            <h2>Comments Moderation</h2>
-            <div class="search-bar">
-                <input type="text" id="comment-search" placeholder="Search comments..." onkeyup="filterModeration('comment')">
+            <a href="news_dashboard.php">
+                <div class="option2 nav-option">
+                    <img src="Images/Event.png" class="nav-img" alt="Products">
+                    <h3>News</h3>
+                </div>
+            </a>
+            <a href="Posting.php">
+                <div class="nav-option option3">
+                    <img src="images/Posting.png" class="nav-img" alt="Inventory">
+                    <h3>Posting</h3>
+                </div>
+            </a>
+            <a href="Moderate.php">
+                <div class="nav-option  option1">
+                    <img src="images/moderator.png" class="nav-img" alt="Schedule">
+                    <h3>Moderations</h3>
+                
+                </div>
+            </a>
+            <a href="hashtags.php">
+                <div class="nav-option">
+                    <img src="images/hashtag.png" class="nav-img" alt="Profile">
+                    <h3>Hashtags</h3>
+                </div>
+            </a>
+            <a href="reported.php">
+                <div class="nav-option">
+                    <img src="images/reporting.png" class="nav-img" alt="Profile">
+                    <h3>Report</h3>
+                </div>
+            </a>
+            <a href="Profile.php">
+                <div class="nav-option option5">
+                    <img src="images/user-icon1.png" class="nav-img" alt="Profile">
+                    <h3>Profile</h3>
+                </div>
+            </a>
+            <div id="logoutButton" class="nav-option logout" onclick="confirmLogout()">
+                <img src="images/logout.png" class="nav-img" alt="Logout" />
+                <h3>Logout</h3>
             </div>
-            <?php
-            if ($comments->num_rows > 0): 
-                while ($comment = $comments->fetch_assoc()): ?>
-                    <div class="moderation-item" id="comment-item-<?= $comment['id'] ?>">
-                        <p><strong>User:</strong> <?= htmlspecialchars($comment['username']) ?></p>
-                        <p><strong>Comment:</strong> <?= htmlspecialchars($comment['content']) ?></p>
-                        <button onclick="deleteComment(<?= $comment['id'] ?>)">Delete</button>
-                        <button onclick="flagComment(<?= $comment['id'] ?>)">Flag</button>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No comments found.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Moderate Users -->
-        <div id="moderate-users" class="moderation-section" style="display: none;">
-            <h2>User Moderation</h2>
-            <div class="search-bar">
-                <input type="text" id="user-search" placeholder="Search users..." onkeyup="filterModeration('user')">
-            </div>
-            <?php
-            if ($users->num_rows > 0): 
-                while ($user = $users->fetch_assoc()): ?>
-                    <div class="moderation-item" id="user-item-<?= $user['id'] ?>">
-                        <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
-                        <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
-                        <button onclick="banUser(<?= $user['id'] ?>)">Ban</button>
-                        <button onclick="unbanUser(<?= $user['id'] ?>)">Unban</button>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No users found.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Moderate Hashtags -->
-        <div id="moderate-hashtags" class="moderation-section" style="display: none;">
-            <h2>Hashtag Moderation</h2>
-            <div class="search-bar">
-                <input type="text" id="hashtag-search" placeholder="Search hashtags..." onkeyup="filterModeration('hashtag')">
-            </div>
-            <?php
-            if ($hashtags->num_rows > 0): 
-                while ($hashtag = $hashtags->fetch_assoc()): ?>
-                    <div class="moderation-item" id="hashtag-item-<?= $hashtag['id'] ?>">
-                        <p><strong>Hashtag:</strong> <?= htmlspecialchars($hashtag['hashtag']) ?></p>
-                        <button onclick="removeHashtag(<?= $hashtag['id'] ?>)">Remove</button>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No hashtags found.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Moderate Reports -->
-        <div id="moderate-reports" class="moderation-section" style="display: none;">
-            <h2>Reported Items</h2>
-            <?php
-            if ($reports->num_rows > 0): 
-                while ($report = $reports->fetch_assoc()): ?>
-                    <div class="moderation-item" id="report-item-<?= $report['id'] ?>">
-                        <p><strong>Reported By:</strong> <?= htmlspecialchars($report['reporter_username']) ?></p>
-                        <p><strong>Item:</strong> <?= htmlspecialchars($report['item_type']) ?> (ID: <?= htmlspecialchars($report['item_id']) ?>)</p>
-                        <p><strong>Reason:</strong> <?= htmlspecialchars($report['reason']) ?></p>
-                        <button onclick="resolveReport(<?= $report['id'] ?>)">Resolve</button>
-                        <button onclick="dismissReport(<?= $report['id'] ?>)">Dismiss</button>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No reports found.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Moderation Logs -->
-        <div id="moderation-logs" class="moderation-section" style="display: none;">
-            <h2>Moderation Logs</h2>
-            <?php
-            if ($logs->num_rows > 0): 
-                while ($log = $logs->fetch_assoc()): ?>
-                    <div class="log-item">
-                        <p><strong>Action:</strong> <?= htmlspecialchars($log['action']) ?></p>
-                        <p><strong>Performed By:</strong> <?= htmlspecialchars($log['moderator']) ?></p>
-                        <p><strong>Timestamp:</strong> <?= htmlspecialchars($log['timestamp']) ?></p>
-                    </div>
-                <?php endwhile; 
-            else: ?>
-                <p>No logs found.</p>
-            <?php endif; ?>
-        </div>
-
+        </nav>
     </div>
 </div>
+<!-- Moderate Users -->
+<div id="moderate-users" class="moderation-section" >
+    <h2>User Moderation</h2>
+    
+    <!-- User search bar -->
+    <div class="search-bar">
+        <input type="text" id="user-search" placeholder="Search users..." onkeyup="filterModeration('user')">
+    </div>
 
-<script src="js/navbar.js"></script>
+    <?php
+    if ($users->num_rows > 0): 
+        while ($user = $users->fetch_assoc()): ?>
+            <div class="moderation-item" id="user-item-<?= $user['id'] ?>" data-user-id="<?= $user['id'] ?>">
+                <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
+                <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
+                <p><strong>Status:</strong> <span id="user-status-<?= $user['id'] ?>"><?= $user['status'] ?></span></p>
+
+                <button onclick="viewUserDetails(<?= $user['id'] ?>)">View Profile</button>
+                <button onclick="banUser(<?= $user['id'] ?>)" id="ban-button-<?= $user['id'] ?>">Ban</button>
+                <button onclick="unbanUser(<?= $user['id'] ?>)" id="unban-button-<?= $user['id'] ?>" style="display: none;">Unban</button>
+            </div>
+        <?php endwhile; 
+    else: ?>
+        <p>No users found.</p>
+    <?php endif; ?>
+</div>
+
+
 <script>
-// Add JavaScript for filtering and moderation actions
-
-// Show section for moderation categories
-function showSection(sectionId) {
-    const sections = document.querySelectorAll('.moderation-section');
-    sections.forEach(section => section.style.display = 'none');
-    document.getElementById(sectionId).style.display = 'block';
-}
-
-// Filter moderation items
+// Filter users based on search input
 function filterModeration(type) {
-    const searchInput = document.getElementById(type + '-search');
-    const items = document.querySelectorAll(`#${type}-item`);
-    const query = searchInput.value.toLowerCase();
+    const searchQuery = document.getElementById(`${type}-search`).value.toLowerCase();
+    const items = document.querySelectorAll(`#${type}-moderation .moderation-item`);
 
     items.forEach(item => {
-        const content = item.innerText.toLowerCase();
-        if (content.includes(query)) {
-            item.style.display = 'block';
+        const username = item.querySelector('p strong').textContent.toLowerCase();
+        if (username.includes(searchQuery)) {
+            item.style.display = "block";
         } else {
-            item.style.display = 'none';
+            item.style.display = "none";
         }
     });
 }
 
-// Example functions for moderation actions
-function deletePost(postId) {
-    alert('Post ' + postId + ' deleted');
-}
-
-function flagPost(postId) {
-    alert('Post ' + postId + ' flagged');
-}
-
-function deleteComment(commentId) {
-    alert('Comment ' + commentId + ' deleted');
-}
-
-function flagComment(commentId) {
-    alert('Comment ' + commentId + ' flagged');
-}
-
+// Function to ban a user
 function banUser(userId) {
-    alert('User ' + userId + ' banned');
+    // Send an AJAX request to ban the user
+    fetch('moderate_user.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'ban', userId: userId }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById(`user-status-${userId}`).innerText = 'Banned';
+            document.getElementById(`ban-button-${userId}`).style.display = 'none';
+            document.getElementById(`unban-button-${userId}`).style.display = 'inline-block';
+        } else {
+            alert('Failed to ban user.');
+        }
+    });
 }
 
+// Function to unban a user
 function unbanUser(userId) {
-    alert('User ' + userId + ' unbanned');
+    // Send an AJAX request to unban the user
+    fetch('moderate_user.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'unban', userId: userId }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById(`user-status-${userId}`).innerText = 'Active';
+            document.getElementById(`unban-button-${userId}`).style.display = 'none';
+            document.getElementById(`ban-button-${userId}`).style.display = 'inline-block';
+        } else {
+            alert('Failed to unban user.');
+        }
+    });
 }
 
-function removeHashtag(hashtagId) {
-    alert('Hashtag ' + hashtagId + ' removed');
+// Function to view user details
+function viewUserDetails(userId) {
+    // Open a modal or redirect to the user profile page to view detailed information
+    window.location.href = `user_profile.php?user_id=${userId}`;
 }
 
-function resolveReport(reportId) {
-    alert('Report ' + reportId + ' resolved');
+// Function to reset user password
+function resetPassword(userId) {
+    // Send an AJAX request to reset the user's password
+    fetch('moderate_user.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'reset_password', userId: userId }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Password reset successfully.');
+        } else {
+            alert('Failed to reset password.');
+        }
+    });
 }
 
-function dismissReport(reportId) {
-    alert('Report ' + reportId + ' dismissed');
-}
 </script>
+<script src="js/navbar.js"></script>
+
 </body>
 </html>
