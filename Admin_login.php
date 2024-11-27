@@ -37,7 +37,7 @@
 
     <div class="copyright">
         <span class="left">© 2024 Unilink. All rights reserved. Privacy policy</span>
-        <span class="right">Terms and conditions</span>
+        <span class="right">Terms and conditions test</span>
     </div>
 
 </body>
